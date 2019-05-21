@@ -19,9 +19,15 @@ public class Parser {
 
     public Program parse(String input) throws ParseException {
         String[] inputLines = input.split("\n");
-        List<FunctionDefinition> functionDefinitions = new ArrayList<>();
+        Map<String, Map<Integer, FunctionDefinition>> functionDefinitions = new HashMap<>();
         for (int i = 0; i < inputLines.length - 1; i++) {
-            functionDefinitions.add(parseFunctionDefinition(inputLines[i], i + 1));
+            FunctionDefinition functionDefinition = parseFunctionDefinition(inputLines[i], i + 1);
+            String identifier = functionDefinition.getIdentifier().getName();
+            if (!functionDefinitions.containsKey(identifier)) {
+                functionDefinitions.put(identifier, new HashMap<>());
+            }
+            functionDefinitions.get(identifier).put(functionDefinition.getParameterList().size(), functionDefinition);
+
         }
         Expression expression = parseExpression(new Lexer(inputLines[inputLines.length - 1]), inputLines.length);
         return new Program(functionDefinitions, expression);
