@@ -1,5 +1,6 @@
 package structure;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Program {
@@ -17,5 +18,9 @@ public class Program {
 
     public Map<String, Map<Integer, FunctionDefinition>> getFunctionDefinitionList() {
         return functionDefinitionList;
+    }
+
+    public int runProgram() throws Exception {
+        return expression.evaluate(new HashMap<>(), functionDefinitionList);
     }
 }

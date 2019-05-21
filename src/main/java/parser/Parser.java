@@ -22,6 +22,7 @@ public class Parser {
         Map<String, Map<Integer, FunctionDefinition>> functionDefinitions = new HashMap<>();
         for (int i = 0; i < inputLines.length - 1; i++) {
             FunctionDefinition functionDefinition = parseFunctionDefinition(inputLines[i], i + 1);
+            System.out.println("parsed");
             String identifier = functionDefinition.getIdentifier().getName();
             if (!functionDefinitions.containsKey(identifier)) {
                 functionDefinitions.put(identifier, new HashMap<>());
@@ -29,13 +30,17 @@ public class Parser {
             functionDefinitions.get(identifier).put(functionDefinition.getParameterList().size(), functionDefinition);
 
         }
-        Expression expression = parseExpression(new Lexer(inputLines[inputLines.length - 1]), inputLines.length);
+        Lexer lexer = new Lexer(inputLines[inputLines.length - 1]);
+        lexer.nextToken();
+        Expression expression = parseExpression(lexer, inputLines.length);
         return new Program(functionDefinitions, expression);
     }
 
     private String checkCurToken(Lexer lexer, Set<Token> expectedTokens, int lineNumber) throws ParseException {
-        if (expectedTokens.contains(lexer.getCurToken())) {
-            throw new ParseException("Unexpected token at position" + lexer.getCurPos(), lineNumber);
+        if (!expectedTokens.contains(lexer.getCurToken())) {
+            System.out.println(expectedTokens);
+            System.out.print(lexer.getCurToken());
+            throw new ParseException("Unexpected token at position " + lexer.getCurPos() + " at line " + lineNumber, lineNumber);
         }
         String res = lexer.getCurTokenString();
         lexer.nextToken();
@@ -71,11 +76,15 @@ public class Parser {
     private Expression parseExpression(Lexer lexer, int lineNumber) throws ParseException {
         Token curToken = lexer.getCurToken();
         int curPos = lexer.getCurPos();
+        System.out.println(curToken);
+        System.out.println(curPos);
+        System.out.println("!" + lineNumber);
         String curTokenString = lexer.getCurTokenString();
         lexer.nextToken();
         if (curToken == Token.IDENTIFIER) {
             Identifier identifier = new Identifier(curTokenString);
             if (lexer.getCurToken() == Token.LPAR) {
+                lexer.nextToken();
                 List<Expression> argumentList = parseArgumentList(lexer, lineNumber);
                 checkCurToken(lexer, Token.RPAR, lineNumber);
                 return new CallExpression(identifier, argumentList);
@@ -107,7 +116,9 @@ public class Parser {
 
             return new IfExpression(condition, thenClause, elseClause);
         } else {
-            throw new ParseException("Unexpected token at position" + curPos, lineNumber);
+            System.out.println(curToken);
+            System.out.println(curPos);
+            throw new ParseException("Unexpected token at position " + curPos + " at line " + lineNumber, lineNumber);
         }
     }
 
@@ -118,6 +129,7 @@ public class Parser {
             lexer.nextToken();
             result.add(parseExpression(lexer, lineNumber));
         }
+        System.out.println("!!!!!" + lexer.getCurToken());
         return result;
     }
 }
