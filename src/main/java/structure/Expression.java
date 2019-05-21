@@ -1,5 +1,7 @@
 package structure;
 
+import java.util.Map;
+
 public interface Expression {
-    int evaluate();
+    int evaluate(Map<String, Integer> values, Map<String, Map<Integer, FunctionDefinition>> functionDefinitions) throws Exception;
 }

@@ -1,25 +1,21 @@
 package structure;
 
-import java.util.List;
+import java.util.Map;
 
 public class Program {
-    private final List<FunctionDefinition> functionDefinitionList;
+    private final Map<String, Map<Integer, FunctionDefinition>> functionDefinitionList;
     private final Expression expression;
 
-    public Program(List<FunctionDefinition> functionDefinitionList, Expression expression) {
+    public Program(Map<String, Map<Integer, FunctionDefinition>> functionDefinitionList, Expression expression) {
         this.functionDefinitionList = functionDefinitionList;
         this.expression = expression;
-    }
-
-    public void addFunctionDefinition(FunctionDefinition functionDefinition) {
-        functionDefinitionList.add(functionDefinition);
     }
 
     public Expression getExpression() {
         return expression;
     }
 
-    public List<FunctionDefinition> getFunctionDefinitionList() {
+    public Map<String, Map<Integer, FunctionDefinition>> getFunctionDefinitionList() {
         return functionDefinitionList;
     }
 }

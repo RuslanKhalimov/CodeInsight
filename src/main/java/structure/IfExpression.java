@@ -1,5 +1,7 @@
 package structure;
 
+import java.util.Map;
+
 public class IfExpression implements Expression {
     private final Expression condition;
     private final Expression thenClause;
@@ -29,10 +31,10 @@ public class IfExpression implements Expression {
     }
 
     @Override
-    public int evaluate() {
-        if (condition.evaluate() == 0) {
-            return elseClause.evaluate();
+    public int evaluate(Map<String, Integer> values, Map<String, Map<Integer, FunctionDefinition>> functionDefinitions) throws Exception {
+        if (condition.evaluate(values, functionDefinitions) == 0) {
+            return elseClause.evaluate(values, functionDefinitions);
         }
-        return thenClause.evaluate();
+        return thenClause.evaluate(values, functionDefinitions);
     }
 }

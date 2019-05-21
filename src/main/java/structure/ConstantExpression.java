@@ -1,5 +1,7 @@
 package structure;
 
+import java.util.Map;
+
 public class ConstantExpression implements Expression {
     private final int number;
 
@@ -12,7 +14,7 @@ public class ConstantExpression implements Expression {
     }
 
     @Override
-    public int evaluate() {
+    public int evaluate(Map<String, Integer> values, Map<String, Map<Integer, FunctionDefinition>> functionDefinitions) {
         return number;
     }
 }

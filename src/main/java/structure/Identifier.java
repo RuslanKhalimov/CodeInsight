@@ -1,5 +1,7 @@
 package structure;
 
+import java.util.Map;
+
 public class Identifier implements Expression {
     private final String name;
 
@@ -12,7 +14,7 @@ public class Identifier implements Expression {
     }
 
     @Override
-    public int evaluate() {
-        return 0;
+    public int evaluate(Map<String, Integer> values, Map<String, Map<Integer, FunctionDefinition>> functionDefinitions) {
+        return values.get(name);
     }
 }
