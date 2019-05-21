@@ -1,8 +1,8 @@
 package parser;
 
+import exceptions.SyntaxError;
 import structure.*;
 
-import java.text.ParseException;
 import java.util.*;
 
 public class Parser {
@@ -17,12 +17,11 @@ public class Parser {
             Token.EQUAL
     ));
 
-    public Program parse(String input) throws ParseException {
+    public Program parse(String input) throws SyntaxError {
         String[] inputLines = input.split("\n");
         Map<String, Map<Integer, FunctionDefinition>> functionDefinitions = new HashMap<>();
         for (int i = 0; i < inputLines.length - 1; i++) {
             FunctionDefinition functionDefinition = parseFunctionDefinition(inputLines[i], i + 1);
-            System.out.println("parsed");
             String identifier = functionDefinition.getIdentifier().getName();
             if (!functionDefinitions.containsKey(identifier)) {
                 functionDefinitions.put(identifier, new HashMap<>());
@@ -33,52 +32,47 @@ public class Parser {
         Lexer lexer = new Lexer(inputLines[inputLines.length - 1]);
         lexer.nextToken();
         Expression expression = parseExpression(lexer, inputLines.length);
-        return new Program(functionDefinitions, expression);
+        checkCurToken(lexer, Token.END);
+        return new Program(functionDefinitions, expression, inputLines.length);
     }
 
-    private String checkCurToken(Lexer lexer, Set<Token> expectedTokens, int lineNumber) throws ParseException {
+    private String checkCurToken(Lexer lexer, Set<Token> expectedTokens) throws SyntaxError {
         if (!expectedTokens.contains(lexer.getCurToken())) {
-            System.out.println(expectedTokens);
-            System.out.print(lexer.getCurToken());
-            throw new ParseException("Unexpected token at position " + lexer.getCurPos() + " at line " + lineNumber, lineNumber);
+            throw new SyntaxError();
         }
         String res = lexer.getCurTokenString();
         lexer.nextToken();
         return res;
     }
 
-    private String checkCurToken(Lexer lexer, Token expectedToken, int lineNumber) throws ParseException {
-        return checkCurToken(lexer, Collections.singleton(expectedToken), lineNumber);
+    private String checkCurToken(Lexer lexer, Token expectedToken) throws SyntaxError {
+        return checkCurToken(lexer, Collections.singleton(expectedToken));
     }
 
-    private FunctionDefinition parseFunctionDefinition(String input, int lineNumber) throws ParseException {
+    private FunctionDefinition parseFunctionDefinition(String input, int lineNumber) throws SyntaxError {
         Lexer lexer = new Lexer(input);
         lexer.nextToken();
-        Identifier identifier = new Identifier(checkCurToken(lexer, Token.IDENTIFIER, lineNumber));
+        Identifier identifier = new Identifier(checkCurToken(lexer, Token.IDENTIFIER));
 
-        checkCurToken(lexer, Token.LPAR, lineNumber);
+        checkCurToken(lexer, Token.LPAR);
         List<Identifier> parameterList = new ArrayList<>();
-        parameterList.add(new Identifier(checkCurToken(lexer, Token.IDENTIFIER, lineNumber)));
+        parameterList.add(new Identifier(checkCurToken(lexer, Token.IDENTIFIER)));
         while (lexer.getCurToken() == Token.COMMA) {
             lexer.nextToken();
-            parameterList.add(new Identifier(checkCurToken(lexer, Token.IDENTIFIER, lineNumber)));
+            parameterList.add(new Identifier(checkCurToken(lexer, Token.IDENTIFIER)));
         }
-        checkCurToken(lexer, Token.RPAR, lineNumber);
-        checkCurToken(lexer, Token.EQUAL, lineNumber);
-        checkCurToken(lexer, Token.LCPAR, lineNumber);
+        checkCurToken(lexer, Token.RPAR);
+        checkCurToken(lexer, Token.EQUAL);
+        checkCurToken(lexer, Token.LCPAR);
 
         Expression expression = parseExpression(lexer, lineNumber);
 
-        checkCurToken(lexer, Token.RCPAR, lineNumber);
-        return new FunctionDefinition(identifier, parameterList, expression);
+        checkCurToken(lexer, Token.RCPAR);
+        return new FunctionDefinition(identifier, parameterList, expression, lineNumber);
     }
 
-    private Expression parseExpression(Lexer lexer, int lineNumber) throws ParseException {
+    private Expression parseExpression(Lexer lexer, int lineNumber) throws SyntaxError {
         Token curToken = lexer.getCurToken();
-        int curPos = lexer.getCurPos();
-        System.out.println(curToken);
-        System.out.println(curPos);
-        System.out.println("!" + lineNumber);
         String curTokenString = lexer.getCurTokenString();
         lexer.nextToken();
         if (curToken == Token.IDENTIFIER) {
@@ -86,7 +80,7 @@ public class Parser {
             if (lexer.getCurToken() == Token.LPAR) {
                 lexer.nextToken();
                 List<Expression> argumentList = parseArgumentList(lexer, lineNumber);
-                checkCurToken(lexer, Token.RPAR, lineNumber);
+                checkCurToken(lexer, Token.RPAR);
                 return new CallExpression(identifier, argumentList);
             }
             return identifier;
@@ -96,40 +90,37 @@ public class Parser {
             return new ConstantExpression(Integer.parseInt(curTokenString));
         } else if (curToken == Token.LPAR) {
             Expression left = parseExpression(lexer, lineNumber);
-            String operation = checkCurToken(lexer, operatorTokens, lineNumber);
+            String operation = checkCurToken(lexer, operatorTokens);
             Expression right = parseExpression(lexer, lineNumber);
-            checkCurToken(lexer, Token.RPAR, lineNumber);
+            checkCurToken(lexer, Token.RPAR);
             return new BinaryExpression(left, right, operation);
         } else if (curToken == Token.LSQPAR) {
             Expression condition = parseExpression(lexer, lineNumber);
-            checkCurToken(lexer, Token.RSQPAR, lineNumber);
-            checkCurToken(lexer, Token.QUERY, lineNumber);
-            checkCurToken(lexer, Token.LCPAR, lineNumber);
+            checkCurToken(lexer, Token.RSQPAR);
+            checkCurToken(lexer, Token.QUERY);
+            checkCurToken(lexer, Token.LCPAR);
 
             Expression thenClause = parseExpression(lexer, lineNumber);
-            checkCurToken(lexer, Token.RCPAR, lineNumber);
-            checkCurToken(lexer, Token.COLON, lineNumber);
-            checkCurToken(lexer, Token.LCPAR, lineNumber);
+            checkCurToken(lexer, Token.RCPAR);
+            checkCurToken(lexer, Token.COLON);
+            checkCurToken(lexer, Token.LCPAR);
 
             Expression elseClause = parseExpression(lexer, lineNumber);
-            checkCurToken(lexer, Token.RCPAR, lineNumber);
+            checkCurToken(lexer, Token.RCPAR);
 
             return new IfExpression(condition, thenClause, elseClause);
         } else {
-            System.out.println(curToken);
-            System.out.println(curPos);
-            throw new ParseException("Unexpected token at position " + curPos + " at line " + lineNumber, lineNumber);
+            throw new SyntaxError();
         }
     }
 
-    private List<Expression> parseArgumentList(Lexer lexer, int lineNumber) throws ParseException {
+    private List<Expression> parseArgumentList(Lexer lexer, int lineNumber) throws SyntaxError {
         List<Expression> result = new ArrayList<>();
         result.add(parseExpression(lexer, lineNumber));
         while (lexer.getCurToken() == Token.COMMA) {
             lexer.nextToken();
             result.add(parseExpression(lexer, lineNumber));
         }
-        System.out.println("!!!!!" + lexer.getCurToken());
         return result;
     }
 }

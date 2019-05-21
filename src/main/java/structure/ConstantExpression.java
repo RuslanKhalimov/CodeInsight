@@ -14,7 +14,12 @@ public class ConstantExpression implements Expression {
     }
 
     @Override
-    public int evaluate(Map<String, Integer> values, Map<String, Map<Integer, FunctionDefinition>> functionDefinitions) {
+    public String toString() {
+        return Integer.toString(number);
+    }
+
+    @Override
+    public int evaluate(Map<String, Integer> values, Map<String, Map<Integer, FunctionDefinition>> functionDefinitions, int line) {
         return number;
     }
 }

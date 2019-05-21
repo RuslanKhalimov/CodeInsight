@@ -1,6 +1,7 @@
 package parser;
 
-import java.text.ParseException;
+import exceptions.SyntaxError;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,6 +42,7 @@ public class Lexer {
         regex.put(Token.COLON, Pattern.compile(":"));
         regex.put(Token.COMMA, Pattern.compile(","));
         regex.put(Token.ENDLINE, Pattern.compile("\n"));
+        regex.put(Token.END, Pattern.compile("$"));
     }
 
     private boolean findNextToken() {
@@ -56,13 +58,13 @@ public class Lexer {
         return false;
     }
 
-    public void nextToken() throws ParseException {
+    public void nextToken() throws SyntaxError {
         if (curPos == input.length()) {
             curToken = Token.END;
             return;
         }
         if (!findNextToken()) {
-            throw new ParseException("Illegal sequence of characters at", curPos);
+            throw new SyntaxError();
         }
     }
     public Token getCurToken() {

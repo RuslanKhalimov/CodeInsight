@@ -6,10 +6,12 @@ import java.util.Map;
 public class Program {
     private final Map<String, Map<Integer, FunctionDefinition>> functionDefinitionList;
     private final Expression expression;
+    private final int line;
 
-    public Program(Map<String, Map<Integer, FunctionDefinition>> functionDefinitionList, Expression expression) {
+    public Program(Map<String, Map<Integer, FunctionDefinition>> functionDefinitionList, Expression expression, int line) {
         this.functionDefinitionList = functionDefinitionList;
         this.expression = expression;
+        this.line = line;
     }
 
     public Expression getExpression() {
@@ -21,6 +23,6 @@ public class Program {
     }
 
     public int runProgram() throws Exception {
-        return expression.evaluate(new HashMap<>(), functionDefinitionList);
+        return expression.evaluate(new HashMap<>(), functionDefinitionList, line);
     }
 }

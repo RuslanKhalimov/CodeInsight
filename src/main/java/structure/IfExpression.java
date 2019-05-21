@@ -31,10 +31,10 @@ public class IfExpression implements Expression {
     }
 
     @Override
-    public int evaluate(Map<String, Integer> values, Map<String, Map<Integer, FunctionDefinition>> functionDefinitions) throws Exception {
-        if (condition.evaluate(values, functionDefinitions) == 0) {
-            return elseClause.evaluate(values, functionDefinitions);
+    public int evaluate(Map<String, Integer> values, Map<String, Map<Integer, FunctionDefinition>> functionDefinitions, int line) throws Exception {
+        if (condition.evaluate(values, functionDefinitions, line) == 0) {
+            return elseClause.evaluate(values, functionDefinitions, line);
         }
-        return thenClause.evaluate(values, functionDefinitions);
+        return thenClause.evaluate(values, functionDefinitions, line);
     }
 }
