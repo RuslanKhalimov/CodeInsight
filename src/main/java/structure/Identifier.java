@@ -1,6 +1,6 @@
 package structure;
 
-public class Identifier {
+public class Identifier implements Expression {
     private final String name;
 
     public Identifier(String name) {
@@ -9,5 +9,10 @@ public class Identifier {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int evaluate() {
+        return 0;
     }
 }
